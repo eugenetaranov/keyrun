@@ -12,7 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const version = "0.0.1"
+const version = "0.2.0"
 const configFile = ".keyrun.yml"
 
 const helpMessage = `Commands:
@@ -83,8 +83,9 @@ func main() {
 					os.Exit(2)
 				}
 
-				// unencrypting state files
-				for _, fname := range []string{"terraform.tfstate", "terraform.tfstate.backup"} {
+				// unencrypting .enc files
+				files := findFiles()
+				for _, fname := range files {
 					err := decryptFile(fname+".enc", fname, secret)
 					if err != nil {
 						log.Fatalln("Error decrypting file", fname)
@@ -94,7 +95,7 @@ func main() {
 				// executing command
 				runit(args[2], args[3:])
 				// encrypting state files
-				for _, fname := range []string{"terraform.tfstate", "terraform.tfstate.backup"} {
+				for _, fname := range files {
 					err := encryptFile(fname, fname+".enc", secret)
 					if err != nil {
 						log.Fatalln("Error encrypting file", fname)
@@ -102,7 +103,7 @@ func main() {
 					}
 				}
 				// cleanup
-				for _, fname := range []string{"terraform.tfstate", "terraform.tfstate.backup"} {
+				for _, fname := range files {
 					err := os.Remove(fname)
 					if err != nil {
 						log.Fatalln("Error cleaning up,", err)
