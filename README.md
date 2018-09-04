@@ -3,7 +3,7 @@ Cli wrapper managing env keys and encrypting files
 
 #### Why
 
-Cli tools sometimes are not flexible or secure enough managing env variables and local files. Keyrun is a tiny cli wrapper, that decrypts files and sets up env variables, executes the command then cleans the things up. It is desgned for terraform but can be reused for any cli tool.
+Cli tools sometimes are not flexible or secure enough managing env variables and local files. Keyrun is a tiny cli wrapper, that decrypts files and sets up env variables, executes the command then cleans the things up. It is designed with terraform in mind but can be used for any cli tool.
 
 #### Getting started
 1. Download keyrun from https://github.com/eugenetaranov/keyrun/releases
