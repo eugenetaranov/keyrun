@@ -1,5 +1,5 @@
 builds:
-  - binary: clover
+  - binary: keyrun
     goos:
       - windows
       - darwin
