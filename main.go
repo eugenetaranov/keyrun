@@ -12,7 +12,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const version = "0.2.2"
 const configFile = ".keyrun.yml"
 
 const helpMessage = `Commands:
