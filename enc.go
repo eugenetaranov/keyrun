@@ -6,10 +6,12 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 func createHash(key string) string {
@@ -51,7 +53,8 @@ func decrypt(data []byte, secret string) []byte {
 	return plaintext
 }
 
-func encryptFile(spath string, dpath string, secret string) error {
+func encryptFile(spath string, secret string) error {
+	dpath := fmt.Sprintf("%s.enc", spath)
 	sdata, err := ioutil.ReadFile(spath)
 	if err != nil {
 		log.Fatalf("Failed to read %s\n", spath)
@@ -63,7 +66,8 @@ func encryptFile(spath string, dpath string, secret string) error {
 	return nil
 }
 
-func decryptFile(spath string, dpath string, secret string) error {
+func decryptFile(spath string, secret string) error {
+	dpath := strings.TrimSuffix(spath, ".enc")
 	encdata, err := ioutil.ReadFile(spath)
 	if err != nil {
 		log.Fatalf("Failed to read %s\n", spath)

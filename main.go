@@ -16,15 +16,15 @@ const version = "0.2.2"
 const configFile = ".keyrun.yml"
 
 const helpMessage = `Commands:
-  exec -- <command> <args>				- executes command with arguments
-  encrypt <unencrypted source file> <destination file>	- encrypts file read from source, writes encrypted into destination
-  decrypt <encrypted source file> <destination file>	- decrypts file read from source, writes unencrypted into destination
+  exec -- <command> <args>			- executes command with arguments
+  encrypt <unencrypted source file>		- encrypts file read from source, writes encrypted into destination appending .enc extension
+  decrypt <encrypted source file>		- decrypts file read from source, writes unencrypted into destination without .enc extension
   key <subcommand>:
-	create						- create new key in keyring
-	show						- show key stored in keyring
-	delete						- delete key from keyring
-  version						- show version
-  help							- show help message
+	create					- create new key in keyring
+	show					- show key stored in keyring
+	delete					- delete key from keyring
+  version					- show version
+  help						- show help message
 `
 
 type ConfigType struct {
@@ -86,7 +86,7 @@ func main() {
 				// unencrypting .enc files
 				files := findFiles()
 				for _, fname := range files {
-					err := decryptFile(fname+".enc", fname, secret)
+					err := decryptFile(fname+".enc", secret)
 					if err != nil {
 						log.Fatalln("Error decrypting file", fname)
 						os.Exit(2)
@@ -96,7 +96,7 @@ func main() {
 				runit(args[2], args[3:])
 				// encrypting state files
 				for _, fname := range files {
-					err := encryptFile(fname, fname+".enc", secret)
+					err := encryptFile(fname, secret)
 					if err != nil {
 						log.Fatalln("Error encrypting file", fname)
 						os.Exit(2)
@@ -114,7 +114,7 @@ func main() {
 			showHelpMessage()
 		}
 	case "encrypt":
-		if len(args) == 3 {
+		if len(args) == 2 {
 			conf, err := GetConf(configFile)
 			if err != nil {
 				log.Fatal("Error: ", err)
@@ -127,7 +127,7 @@ func main() {
 				os.Exit(2)
 			}
 			// encrypting files
-			err = encryptFile(args[1], args[2], secret)
+			err = encryptFile(args[1], secret)
 			if err != nil {
 				log.Fatalln("Error: ", args[1])
 				os.Exit(2)
@@ -139,7 +139,7 @@ func main() {
 			showHelpMessage()
 		}
 	case "decrypt":
-		if len(args) == 3 {
+		if len(args) == 2 {
 			conf, err := GetConf(configFile)
 			if err != nil {
 				log.Fatal("Error: ", err)
@@ -152,7 +152,7 @@ func main() {
 				os.Exit(2)
 			}
 			// decrypting files
-			err = decryptFile(args[1], args[2], secret)
+			err = decryptFile(args[1], secret)
 			if err != nil {
 				log.Fatalln("Error decrypting file", args[1])
 				os.Exit(2)
