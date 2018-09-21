@@ -78,3 +78,13 @@ func decryptFile(spath string, secret string) error {
 	f.Write(decrypt(encdata, secret))
 	return nil
 }
+
+func decryptFileString(spath string, secret string) error {
+	encdata, err := ioutil.ReadFile(spath)
+	if err != nil {
+		log.Fatalf("Failed to read %s\n", spath)
+	}
+
+	fmt.Print(string(decrypt(encdata, secret)))
+	return nil
+}

@@ -19,6 +19,7 @@ const helpMessage = `Commands:
   exec -- <command> <args>			- executes command with arguments
   encrypt <unencrypted source file>		- encrypts file read from source, writes encrypted into destination appending .enc extension
   decrypt <encrypted source file>		- decrypts file read from source, writes unencrypted into destination without .enc extension
+  show <encrypted source file>			- decrypts file read from source and prints to stdout
   key <subcommand>:
 	create					- create new key in keyring
 	show					- show key stored in keyring
@@ -160,6 +161,28 @@ func main() {
 			// cleanup
 			os.Remove(args[1])
 			fmt.Println("Decrypted", args[1])
+		} else {
+			showHelpMessage()
+		}
+	case "show":
+		if len(args) == 2 {
+			conf, err := GetConf(configFile)
+			if err != nil {
+				log.Fatal("Error: ", err)
+				os.Exit(1)
+			}
+			// retriving secret from keyring
+			secret, err := getKey(conf.Key)
+			if err != nil {
+				log.Fatalln("Error retrieveing key", err)
+				os.Exit(2)
+			}
+			// decrypting file
+			err = decryptFileString(args[1], secret)
+			if err != nil {
+				log.Fatalln("Error decrypting file", args[1])
+				os.Exit(2)
+			}
 		} else {
 			showHelpMessage()
 		}
