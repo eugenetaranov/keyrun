@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/user"
+	"strings"
 
 	"github.com/zalando/go-keyring"
 )
@@ -11,6 +12,8 @@ import (
 const serviceNamePrefix = "keyrun"
 
 func getKey(name string) (string, error) {
+
+	name = strings.TrimSpace(name)
 
 	user, err := getUserName()
 	if err != nil {
@@ -26,6 +29,9 @@ func getKey(name string) (string, error) {
 }
 
 func setKey(name string, key string) error {
+
+	name = strings.TrimSpace(name)
+
 	user, err := getUserName()
 	if err != nil {
 		return err
@@ -42,6 +48,9 @@ func setKey(name string, key string) error {
 }
 
 func deleteKey(name string) error {
+
+	name = strings.TrimSpace(name)
+
 	user, err := getUserName()
 	if err != nil {
 		return err
