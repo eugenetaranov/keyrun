@@ -66,47 +66,62 @@ func main() {
 	case "exec":
 		if len(args) >= 3 {
 			if args[1] == "--" {
+				var secret string
+
 				conf, err := GetConf(configFile)
 				if err != nil {
 					log.Fatal("Error: ", err)
 					os.Exit(1)
 				}
+
 				err = setEnv(conf.Env)
 				if err != nil {
 					log.Fatal("Error: ", err)
 				}
 
 				// retriving secret from keyring
-				secret, err := getKey(conf.Key)
-				if err != nil {
-					log.Fatalln("Error retrieveing key", err)
-					os.Exit(2)
+				if conf.Key != "" {
+					secret, err = getKey(conf.Key)
+					if err != nil {
+						log.Fatalln("Error retrieveing key", err)
+						os.Exit(2)
+					}
 				}
 
 				// unencrypting .enc files
-				files := findFiles()
-				for _, fname := range files {
-					err := decryptFile(fname+".enc", secret)
-					if err != nil {
-						log.Fatalln("Error decrypting file", fname)
-						os.Exit(2)
+				if conf.Key != "" {
+					files := findFiles()
+					for _, fname := range files {
+						err := decryptFile(fname+".enc", secret)
+						if err != nil {
+							log.Fatalln("Error decrypting file", fname)
+							os.Exit(2)
+						}
 					}
 				}
+
 				// executing command
 				runit(args[2], args[3:])
+
 				// encrypting state files
-				for _, fname := range files {
-					err := encryptFile(fname, secret)
-					if err != nil {
-						log.Fatalln("Error encrypting file", fname)
-						os.Exit(2)
+				var files []string
+				if conf.Key != "" {
+					for _, fname := range files {
+						err := encryptFile(fname, secret)
+						if err != nil {
+							log.Fatalln("Error encrypting file", fname)
+							os.Exit(2)
+						}
 					}
 				}
+
 				// cleanup
-				for _, fname := range files {
-					err := os.Remove(fname)
-					if err != nil {
-						log.Fatalln("Error cleaning up,", err)
+				if conf.Key != "" {
+					for _, fname := range files {
+						err := os.Remove(fname)
+						if err != nil {
+							log.Fatalln("Error cleaning up,", err)
+						}
 					}
 				}
 			}
