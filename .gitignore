@@ -1,2 +1,4 @@
 dist
 keyrun
+test*
+.keyrun.yml
