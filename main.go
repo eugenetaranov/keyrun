@@ -91,7 +91,7 @@ func main() {
 
 				// unencrypting .enc files, recording md5 of unencrypted content
 				if conf.Key != "" {
-					files := findFiles()
+					files = findFiles()
 					for fname := range files {
 						filehash, err := decryptFile(fname+".enc", secret)
 						if err != nil {
