@@ -8,8 +8,9 @@ import (
 
 const extension = ".enc"
 
-func findFiles() []string {
-	var filteredFiles []string
+func findFiles() map[string]string {
+	filteredFiles := make(map[string]string)
+
 	files, err := ioutil.ReadDir(".")
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +19,7 @@ func findFiles() []string {
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), extension) {
 			fname := strings.TrimSuffix(file.Name(), extension)
-			filteredFiles = append(filteredFiles, fname)
+			filteredFiles[fname] = ""
 		}
 	}
 	return filteredFiles

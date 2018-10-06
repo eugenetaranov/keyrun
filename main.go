@@ -67,6 +67,7 @@ func main() {
 		if len(args) >= 3 {
 			if args[1] == "--" {
 				var secret string
+				var files map[string]string
 
 				conf, err := GetConf(configFile)
 				if err != nil {
@@ -88,15 +89,16 @@ func main() {
 					}
 				}
 
-				// unencrypting .enc files
+				// unencrypting .enc files, recording md5 of unencrypted content
 				if conf.Key != "" {
 					files := findFiles()
-					for _, fname := range files {
-						err := decryptFile(fname+".enc", secret)
+					for fname := range files {
+						filehash, err := decryptFile(fname+".enc", secret)
 						if err != nil {
 							log.Fatalln("Error decrypting file", fname)
 							os.Exit(2)
 						}
+						files[fname] = filehash
 					}
 				}
 
@@ -104,10 +106,20 @@ func main() {
 				runit(args[2], args[3:])
 
 				// encrypting state files
-				var files []string
 				if conf.Key != "" {
-					for _, fname := range files {
-						err := encryptFile(fname, secret)
+					for fname, filehash := range files {
+						filehashNew, err := getFileHash(fname)
+						if err != nil {
+							log.Fatalln("Failed to read unencrypted", fname)
+							os.Exit(2)
+						}
+
+						// skip encrypting file if md5 is the same
+						if filehash == filehashNew {
+							continue
+						}
+
+						err = encryptFile(fname, secret)
 						if err != nil {
 							log.Fatalln("Error encrypting file", fname)
 							os.Exit(2)
@@ -167,7 +179,7 @@ func main() {
 				os.Exit(2)
 			}
 			// decrypting files
-			err = decryptFile(args[1], secret)
+			_, err = decryptFile(args[1], secret)
 			if err != nil {
 				log.Fatalln("Error decrypting file", args[1])
 				os.Exit(2)

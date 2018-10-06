@@ -66,25 +66,47 @@ func encryptFile(spath string, secret string) error {
 	return nil
 }
 
-func decryptFile(spath string, secret string) error {
+func decryptFile(spath string, secret string) (filehash string, err error) {
 	dpath := strings.TrimSuffix(spath, ".enc")
 	encdata, err := ioutil.ReadFile(spath)
 	if err != nil {
 		log.Fatalf("Failed to read %s\n", spath)
+		return "", err
 	}
 
 	f, _ := os.Create(dpath)
 	defer f.Close()
-	f.Write(decrypt(encdata, secret))
-	return nil
+
+	rawBytes := decrypt(encdata, secret)
+
+	hasher := md5.New()
+	hasher.Write(rawBytes)
+	filehash = hex.EncodeToString(hasher.Sum(nil))
+
+	f.Write(rawBytes)
+	return filehash, nil
 }
 
 func decryptFileString(spath string, secret string) error {
 	encdata, err := ioutil.ReadFile(spath)
 	if err != nil {
 		log.Fatalf("Failed to read %s\n", spath)
+		return err
 	}
 
 	fmt.Print(string(decrypt(encdata, secret)))
 	return nil
+}
+
+func getFileHash(spath string) (filehash string, err error) {
+	rawBytes, err := ioutil.ReadFile(spath)
+	if err != nil {
+		log.Fatalf("Failed to read %s\n", spath)
+		return "", err
+	}
+
+	hasher := md5.New()
+	hasher.Write([]byte(rawBytes))
+	filehash = hex.EncodeToString(hasher.Sum(nil))
+	return filehash, nil
 }
