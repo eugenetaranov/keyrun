@@ -128,12 +128,10 @@ func main() {
 				}
 
 				// cleanup
-				if conf.Key != "" {
-					for _, fname := range files {
-						err := os.Remove(fname)
-						if err != nil {
-							log.Fatalln("Error cleaning up,", err)
-						}
+				for _, fname := range files {
+					err := os.Remove(fname)
+					if err != nil {
+						log.Fatalln("Error cleaning up,", err)
 					}
 				}
 			}
