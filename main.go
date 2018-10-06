@@ -128,7 +128,7 @@ func main() {
 				}
 
 				// cleanup
-				for _, fname := range files {
+				for fname := range files {
 					err := os.Remove(fname)
 					if err != nil {
 						log.Fatalln("Error cleaning up,", err)
