@@ -70,17 +70,16 @@ func main() {
 				var files map[string]string
 
 				conf, err := GetConf(configFile)
-				if err != nil {
-					log.Fatal("Error: ", err)
-					os.Exit(1)
+
+				// set env if config file was parsed
+				if len(conf.Env) > 0 {
+					err = setEnv(conf.Env)
+					if err != nil {
+						log.Fatal("Error: ", err)
+					}
 				}
 
-				err = setEnv(conf.Env)
-				if err != nil {
-					log.Fatal("Error: ", err)
-				}
-
-				// retriving secret from keyring
+				// retriving secret from keyring if key was set in config
 				if conf.Key != "" {
 					secret, err = getKey(conf.Key)
 					if err != nil {
@@ -89,8 +88,18 @@ func main() {
 					}
 				}
 
+				// pull encryption key from env if not set in config
+				if secret == "" {
+					for _, e := range os.Environ() {
+						pair := strings.Split(e, "=")
+						if pair[0] == "KEYRUN_ENCRYPTION_KEY" {
+							secret = pair[1]
+						}
+					}
+				}
+
 				// unencrypting .enc files, recording md5 of unencrypted content
-				if conf.Key != "" {
+				if secret != "" {
 					files = findFiles()
 					for fname := range files {
 						filehash, err := decryptFile(fname+".enc", secret)
